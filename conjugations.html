@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <title>Conjugations</title>
+
+    <style>
+        table th, table td {
+            width: 50%;
+        }
+        .bold-text {
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body class="p-4">
+    <div id="checklist" class="mb-4 space-y-2">
+        <label class="block">
+            <input type="checkbox" name="verb" value="ser" class="mr-2"> ser
+        </label>
+        <label class="block">
+            <input type="checkbox" name="verb" value="estar" class="mr-2"> estar
+        </label>
+        <label class="block">
+            <input type="checkbox" name="verb" value="ir" class="mr-2"> ir
+        </label>
+        <label class="block">
+            <input type="checkbox" name="verb" value="tener" class="mr-2"> tener
+        </label>
+        <label class="block">
+            <input type="checkbox" name="verb" value="querer" class="mr-2"> querer
+        </label>
+        <label class="block">
+            <input type="checkbox" name="verb" value="gustar" class="mr-2"> gustar
+        </label>
+    </div>
+
+    <div class="flex space-x-2">
+        <button id="select-all" class="bg-blue-500 text-white px-4 py-2 rounded">Select All</button>
+        <button id="reroll" class="bg-blue-500 text-white px-4 py-2 rounded">Reroll</button>
+    </div>
+
+    <div id="verb-form" class="mt-2 text-lg text-center"></div>
+
+    <script>
+        const data = {
+            "ser": [
+                "soy",
+                "eres",
+                "es",
+                "somos",
+                "soís",
+                "son"
+            ],
+            "estar": [
+                "estoy",
+                "estás",
+                "está",
+                "estamos",
+                "estáis",
+                "están"
+            ],
+            "ir": [
+                "voy",
+                "vas",
+                "va",
+                "vamos",
+                "váis",
+                "van"
+            ],
+            "tener": [
+                "tengo",
+                "tienes",
+                "tiene",
+                "tenemos",
+                "tenéis",
+                "tienen"
+            ],
+            "querer": [
+                "quiero",
+                "quieres",
+                "quiere",
+                "queremos",
+                "queréis",
+                "quieren"
+            ],
+            "gustar": [
+                "me gusta(n)",
+                "te gusta(n)",
+                "le gusta(n)",
+                "nos gusta(n)",
+                "os gusta(n)",
+                "les gusta(n)"
+            ]
+        };
+
+         const selected = () => {
+            const arr = [];
+            const box = document.querySelectorAll('input[name="verb"]:checked');
+            box.forEach(_ => arr.push(_.value));
+            return arr;
+        }
+
+        document.getElementById('select-all').addEventListener('click', () => {
+            const boxes = document.querySelectorAll('input[name="verb"]');
+            const all = Array.from(boxes).every(_ => _.checked);
+            boxes.forEach(_ => _.checked = !all);
+        })
+
+        document.getElementById('reroll').addEventListener('click', () => {
+            const verbs = selected();
+
+            if (verbs.length === 0) return;
+
+            const e_table = document.querySelector('table');
+            const e_msg = document.querySelector('.result');
+            if (e_table) e_table.remove();
+            if (e_msg) e_msg.remove();
+
+            const random = verbs[Math.floor(Math.random() * verbs.length)];
+            const r_data = data[random];
+
+            const heading = document.getElementById('verb-form');
+            heading.innerHTML = `Conjugate "<span class="bold-text">${random}</span>" in Spanish.`;
+
+            const r_index = Math.floor(Math.random() * r_data.length);
+            const removed = r_data[r_index];
+
+            const t_data = [...r_data];
+            t_data[r_index] = '_';
+
+            const table = document.createElement('table');
+            table.classList.add('w-full', 'border-collapse', 'mt-4');
+
+            for (let i = 0; i < t_data.length / 2; i++) {
+                const row = document.createElement('tr');
+                const cell1 = document.createElement('td');
+
+                if (t_data[i] === '_') {
+                    const input1 = document.createElement('input');
+
+                    input1.type = 'text';
+                    input1.placeholder = '';
+                    input1.classList.add('border', 'p-2', 'rounded', 'w-full');
+
+                    input1.addEventListener('keypress', (event) => {
+                        if (event.key === 'Enter') {
+                            const result = document.querySelector('.result');
+
+                            if (input1.value === removed) {
+                                result.textContent = `✅ Correct!`;
+                            } else {
+                                result.innerHTML = `❌ Incorrect! The word is <span class="bold-text">${removed}</span>.`;
+                            }
+
+                            input1.disabled = true;
+                        }
+                    });
+
+                    cell1.appendChild(input1);
+                } else {
+                    cell1.textContent = t_data[i];
+                }
+
+                cell1.classList.add('border', 'p-2');
+
+                const cell2 = document.createElement('td');
+
+                if (t_data[i + 3] === '_') {
+                    const input2 = document.createElement('input');
+
+                    input2.type = 'text';
+                    input2.placeholder = '';
+                    input2.classList.add('border', 'p-2', 'rounded', 'w-full');
+
+                    input2.addEventListener('keypress', (event) => {
+                        if (event.key === 'Enter') {
+                            const result = document.querySelector('.result');
+
+                            if (input2.value === removed) {
+                                result.textContent = `✅ Correct!`;
+                            } else {
+                                result.innerHTML = `❌ Incorrect! The word is <span class="bold-text">${removed}</span>.`;
+                            }
+
+                            input2.disabled = true;
+                        }
+                    });
+
+                    cell2.appendChild(input2);
+                } else {
+                    cell2.textContent = t_data[i + 3];
+                }
+
+                cell2.classList.add('border', 'p-2');
+
+                row.appendChild(cell1);
+                row.appendChild(cell2);
+                table.appendChild(row);
+            }
+
+            document.body.appendChild(table);
+
+            const result = document.createElement('div');
+            result.classList.add('result', 'mt-4');
+            document.body.appendChild(result);
+        });
+    </script>
+</body>
+</html>
